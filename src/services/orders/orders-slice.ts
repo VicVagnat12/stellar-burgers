@@ -6,37 +6,41 @@ import {
   fetchOrderByNumber,
   createNewOrder
 } from './actions';
-import { TFeedsResponse } from '../../utils/burger-api';
+import {
+  TFeedsResponse,
+  TOrderResponse,
+  TNewOrderResponse
+} from '../../utils/burger-api';
 
 type TOrderDetailsState = {
-  order: TOrder | null;
+  userOrders: TOrder[] | null;
   orderByNumber: TOrder | null;
-  request: boolean;
   newOrder: {
     order: TOrder | null;
     name: string;
+    number: number | null;
   };
   feed: TFeedsResponse;
-  userOrders: TOrder[] | null;
+  isRequestPending: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialState: TOrderDetailsState = {
-  order: null,
+  userOrders: [],
   orderByNumber: null,
-  request: false,
   newOrder: {
     order: null,
-    name: ''
+    name: '',
+    number: null
   },
   feed: {
     success: false,
+    orders: [],
     total: 0,
-    totalToday: 0,
-    orders: []
+    totalToday: 0
   },
-  userOrders: [],
+  isRequestPending: false,
   isLoading: false,
   error: null
 };
@@ -45,16 +49,17 @@ export const ordersSlice = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    clearOrder: (state) => {
-      state.order = null;
-      state.newOrder = { order: null, name: '' };
-      state.error = null;
+    startOrderRequest: (state) => {
+      state.isRequestPending = true;
+      state.newOrder.order = null;
     },
-    setOrderRequest: (state, action: PayloadAction<boolean>) => {
-      state.request = action.payload;
-    },
-    clearError: (state) => {
-      state.error = null;
+    finishOrderRequest: (state) => {
+      state.isRequestPending = false;
+      state.newOrder = {
+        order: null,
+        name: '',
+        number: null
+      };
     }
   },
   extraReducers: (builder) => {
@@ -64,15 +69,22 @@ export const ordersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchAllOrders.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.feed = action.payload;
-      })
+      .addCase(
+        fetchAllOrders.fulfilled,
+        (state, action: PayloadAction<TFeedsResponse>) => {
+          state.isLoading = false;
+          state.feed = action.payload;
+        }
+      )
       .addCase(fetchAllOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.feed = null;
+        state.feed = {
+          success: false,
+          orders: [],
+          total: 0,
+          totalToday: 0
+        };
       })
 
       // fetchOrderByNumber
@@ -81,11 +93,14 @@ export const ordersSlice = createSlice({
         state.error = null;
         state.orderByNumber = null;
       })
-      .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.orderByNumber = action.payload.orders[0];
-      })
+      .addCase(
+        fetchOrderByNumber.fulfilled,
+        (state, action: PayloadAction<TOrderResponse>) => {
+          state.isLoading = false;
+          state.error = null;
+          state.orderByNumber = action.payload.orders[0];
+        }
+      )
       .addCase(fetchOrderByNumber.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
@@ -97,57 +112,66 @@ export const ordersSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchUserOrders.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-      })
+      .addCase(
+        fetchUserOrders.fulfilled,
+        (state, action: PayloadAction<TOrder[]>) => {
+          state.isLoading = false;
+          state.error = null;
+          state.userOrders = action.payload;
+        }
+      )
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.userOrders = null;
+        state.userOrders = [];
       })
 
       // createNewOrder
       .addCase(createNewOrder.pending, (state) => {
         state.isLoading = true;
-        state.request = true;
+        state.isRequestPending = true;
         state.error = null;
       })
-      .addCase(createNewOrder.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.error = null;
-        state.request = false;
-        state.newOrder = {
-          order: action.payload.order,
-          name: action.payload.name
-        };
-      })
+      .addCase(
+        createNewOrder.fulfilled,
+        (state, action: PayloadAction<TNewOrderResponse>) => {
+          state.isLoading = false;
+          state.error = null;
+          state.isRequestPending = false;
+          state.newOrder = {
+            order: action.payload.order,
+            name: action.payload.name,
+            number: action.payload.order.number
+          };
+        }
+      )
       .addCase(createNewOrder.rejected, (state, action) => {
         state.isLoading = false;
-        state.request = false;
+        state.isRequestPending = false;
         state.error = action.payload as string;
       });
   },
   selectors: {
-    selectFeedOrders: (state) => state.feed.orders,
-    selectOrderLoad: (state) => state.isLoading,
-    selectOrderNumber: (state) => state.orderByNumber,
-    selectFeed: (state) => state.feed,
-    selectNewOrder: (state) => state.newOrder,
-    selectRequest: (state) => state.request,
-    selectUserOrders: (state) => state.userOrders
+    getFeedOrders: (state) => state.feed.orders,
+    getOrdersLoading: (state) => state.isLoading,
+    getOrderByNumber: (state) => state.orderByNumber,
+    getFeed: (state) => state.feed,
+    getNewOrder: (state) => state.newOrder,
+    getOrderRequest: (state) => state.isRequestPending,
+    getUserOrders: (state) => state.userOrders
   }
 });
 
-export const { clearOrder, setOrderRequest, clearError } = ordersSlice.actions;
-export default ordersSlice.reducer;
+export const { startOrderRequest, finishOrderRequest } = ordersSlice.actions;
+
+export const ordersReducer = ordersSlice.reducer;
 
 export const {
-  selectFeedOrders,
-  selectOrderLoad,
-  selectOrderNumber,
-  selectFeed,
-  selectNewOrder,
-  selectRequest,
-  selectUserOrders
+  getFeedOrders,
+  getOrdersLoading,
+  getOrderByNumber,
+  getFeed,
+  getNewOrder,
+  getOrderRequest,
+  getUserOrders
 } = ordersSlice.selectors;

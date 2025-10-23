@@ -1,27 +1,17 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getIngredientsApi } from '../../utils/burger-api';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TIngredient } from '../../utils/types';
-import { selectIngredientCounts } from '../constructor/constructor-slice';
-
-export const fetchIngredients = createAsyncThunk(
-  'ingredients/fetchAll',
-  async (_, { rejectWithValue }) => {
-    try {
-      return await getIngredientsApi();
-    } catch (error: any) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+import { fetchIngredients } from './actions';
 
 type TIngredientsState = {
   items: TIngredient[];
+  currentIngredient: TIngredient | null;
   isLoading: boolean;
   error: string | null;
 };
 
 const initialState: TIngredientsState = {
   items: [],
+  currentIngredient: null,
   isLoading: false,
   error: null
 };
@@ -29,7 +19,17 @@ const initialState: TIngredientsState = {
 const ingredientsSlice = createSlice({
   name: 'ingredients',
   initialState,
-  reducers: {},
+  reducers: {
+    setCurrentIngredient: (
+      state,
+      action: PayloadAction<TIngredient | null>
+    ) => {
+      state.currentIngredient = action.payload;
+    },
+    clearCurrentIngredient: (state) => {
+      state.currentIngredient = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchIngredients.pending, (state) => {
@@ -44,20 +44,23 @@ const ingredientsSlice = createSlice({
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        state.items = [];
       });
   },
   selectors: {
-    selectItems: (state) => state.items,
-    selectItemsLoad: (state) => state.isLoading,
-    selectitemsErr: (state) => state.error
+    getIngredients: (state) => state.items,
+    getCurrentIngredient: (state) => state.currentIngredient,
+    getIngredientsLoading: (state) => state.isLoading,
+    getIngredientsErr: (state) => state.error
   }
 });
 
+export const { setCurrentIngredient, clearCurrentIngredient } =
+  ingredientsSlice.actions;
 export default ingredientsSlice.reducer;
 
 export const {
-    selectItems,
-    selectItemsLoad,
-    selectitemsErr
+  getIngredients,
+  getCurrentIngredient,
+  getIngredientsLoading,
+  getIngredientsErr
 } = ingredientsSlice.selectors;

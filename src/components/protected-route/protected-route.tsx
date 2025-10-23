@@ -1,8 +1,8 @@
-// components/protected-route.tsx
 import { FC } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from 'src/services/store';
+import { useSelector } from '../../services/store';
+import { getUser, getAuthChecked } from '../../services/user/user-slice';
+import { Preloader } from '../ui/preloader';
 
 interface ProtectedRouteProps {
   onlyUnAuth?: boolean;
@@ -13,19 +13,20 @@ export const ProtectedRoute: FC<ProtectedRouteProps> = ({
   onlyUnAuth = false,
   children
 }) => {
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+  const user = useSelector(getUser);
+  const isAuthChecked = useSelector(getAuthChecked);
   const location = useLocation();
 
-  if (onlyUnAuth && isAuthenticated) {
-    // Если пользователь авторизован и роут только для неавторизованных
-    const from = location.state?.from || '/';
+  if (!isAuthChecked) {
+    return <Preloader />;
+  }
+
+  if (onlyUnAuth && user) {
+    const from = location.state?.from || { pathname: '/' };
     return <Navigate to={from} replace />;
   }
 
-  if (!onlyUnAuth && !isAuthenticated) {
-    // Если пользователь не авторизован и роут защищенный
+  if (!onlyUnAuth && !user) {
     return <Navigate to='/login' state={{ from: location }} replace />;
   }
 

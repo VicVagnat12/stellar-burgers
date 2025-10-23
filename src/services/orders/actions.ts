@@ -1,57 +1,57 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  getFeedsApi,
+  getOrdersApi,
+  getOrderByNumberApi,
+  orderBurgerApi
+} from '../../utils/burger-api';
 
 export const fetchAllOrders = createAsyncThunk(
-    'order/getFeeds',
-    async (_, { rejectWithValue }) => {
-      try {
-        // Здесь должен быть вызов API для получения ленты заказов
-        // const response = await getFeedsApi();
-        // return response;
-        throw new Error('getFeedsApi not implemented');
-      } catch (error: any) {
-        return rejectWithValue(error.message);
-      }
+  'orders/fetchAllOrders',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getFeedsApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Ошибка при fetch all orders');
     }
-  );
-  
-  export const fetchOrderByNumber = createAsyncThunk(
-    'order/getByNumber',
-    async (orderNumber: number, { rejectWithValue }) => {
-      try {
-        // Здесь должен быть вызов API для получения заказа по номеру
-        // const response = await getOrderByNumberApi(orderNumber);
-        // return response;
-        throw new Error('getOrderByNumberApi not implemented');
-      } catch (error: any) {
-        return rejectWithValue(error.message);
-      }
+  }
+);
+
+export const fetchUserOrders = createAsyncThunk(
+  'orders/fetchUserOrders',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getOrdersApi();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Ошибка при fetch user orders');
     }
-  );
-  
-  export const fetchUserOrders = createAsyncThunk(
-    'order/getUserOrders',
-    async (_, { rejectWithValue }) => {
-      try {
-        // Здесь должен быть вызов API для получения заказов пользователя
-        // const response = await getUserOrdersApi();
-        // return response;
-        throw new Error('getUserOrdersApi not implemented');
-      } catch (error: any) {
-        return rejectWithValue(error.message);
-      }
+  }
+);
+
+export const fetchOrderByNumber = createAsyncThunk(
+  'orders/fetchOrderByNumber',
+  async (orderNumber: number, { rejectWithValue }) => {
+    try {
+      const response = await getOrderByNumberApi(orderNumber);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.message || 'Ошибка при fetch order by number'
+      );
     }
-  );
-  
-  export const createNewOrder = createAsyncThunk(
-    'order/postUserBurger',
-    async (ingredientIds: string[], { rejectWithValue }) => {
-      try {
-        // Здесь должен быть вызов API для создания заказа пользователя
-        // const response = await postUserBurgerApi(ingredientIds);
-        // return response;
-        throw new Error('postUserBurgerApi not implemented');
-      } catch (error: any) {
-        return rejectWithValue(error.message);
-      }
+  }
+);
+
+export const createNewOrder = createAsyncThunk(
+  'orders/createNewOrder',
+  async (ingredientIds: string[], { rejectWithValue }) => {
+    try {
+      const response = await orderBurgerApi(ingredientIds);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Ошибка создания заказа');
     }
-  );
+  }
+);

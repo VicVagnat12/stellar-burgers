@@ -1,11 +1,4 @@
-import React from 'react';
-import {
-  Routes,
-  Route,
-  useLocation,
-  useNavigate,
-  useParams
-} from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import {
   ConstructorPage,
   Feed,
@@ -19,31 +12,48 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { AppHeader, Modal, IngredientDetails, OrderInfo } from '@components';
-import { ProtectedRoute } from '../protected-route/protected-route';
-import { useDispatch } from 'react-redux';
-/*
-import { getIngredientsApiThunk } from '../../services/actions/ingredients';
-import { getUser } from '../../services/actions/user';
-*/
+import {
+  AppHeader,
+  Modal,
+  IngredientDetails,
+  OrderInfo,
+  ProtectedRoute
+} from '@components';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from '../../services/store';
+import { checkUserAuth } from '../../services/user/actions';
+import { getIngredients } from '../../services/ingredients/ingredients-slice';
+import { TIngredient } from '@utils-types';
+import { fetchIngredients } from '../../services/ingredients/actions';
 
-const App = () => (
-  <div className={styles.app}>
-    <AppHeader />
-    <ConstructorPage />
-  </div>
-);
+const App = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const background = location.state?.background;
+  const dispatch = useDispatch();
+  const ingredients: TIngredient[] = useSelector(getIngredients);
 
-export default App;
+  useEffect(() => {
+    dispatch(checkUserAuth());
+  }, [dispatch]);
 
-/*
+  useEffect(() => {
+    if (!ingredients.length) {
+      dispatch(fetchIngredients());
+    }
+  }, [dispatch, ingredients.length]);
+
+  const modalClose = () => {
+    navigate(-1);
+  };
+
   return (
     <div className={styles.app}>
       <AppHeader />
+
       <Routes location={background || location}>
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-
         <Route
           path='/login'
           element={
@@ -93,14 +103,34 @@ export default App;
           }
         />
 
-        <Route path='/feed/:number' element={<OrderInfo />} />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route
+          path='/ingredients/:id'
+          element={
+            <div className={styles.detailPageWrap}>
+              <p className={`text text_type_main-large ${styles.detailHeader}`}>
+                Детали ингридиента
+              </p>
+              <IngredientDetails />
+            </div>
+          }
+        />
+        <Route
+          path='/feed/:number'
+          element={
+            <div className={styles.detailPageWrap}>
+              <OrderInfo />
+            </div>
+          }
+        />
+
         <Route
           path='/profile/orders/:number'
           element={
-            <ProtectedRoute>
-              <OrderInfo />
-            </ProtectedRoute>
+            <div className={styles.detailPageWrap}>
+              <ProtectedRoute>
+                <OrderInfo />
+              </ProtectedRoute>
+            </div>
           }
         />
 
@@ -110,32 +140,35 @@ export default App;
       {background && (
         <Routes>
           <Route
-            path='/feed/:number'
+            path='/ingredients/:id'
             element={
-              <Modal title={`#${orderNumber}`} onClose={handleModalClose}>
-                <OrderInfo />
+              <Modal title={''} onClose={modalClose}>
+                <IngredientDetails />
               </Modal>
             }
           />
           <Route
-            path='/ingredients/:id'
+            path='/feed/:number'
             element={
-              <Modal title='Детали ингредиента' onClose={handleModalClose}>
-                <IngredientDetails />
+              <Modal title={''} onClose={modalClose}>
+                <OrderInfo />
               </Modal>
             }
           />
           <Route
             path='/profile/orders/:number'
             element={
-              <ProtectedRoute>
-                <Modal title={`#${orderNumber}`} onClose={handleModalClose}>
+              <Modal title={''} onClose={modalClose}>
+                <ProtectedRoute>
                   <OrderInfo />
-                </Modal>
-              </ProtectedRoute>
+                </ProtectedRoute>
+              </Modal>
             }
           />
         </Routes>
       )}
     </div>
-  ); */
+  );
+};
+
+export default App;
