@@ -11,7 +11,13 @@ import { OrderStatus } from '@components';
 
 export const OrderInfoUI: FC<OrderInfoUIProps> = memo(({ orderInfo }) => (
   <div className={styles.wrap}>
-    <h3 className={`text text_type_main-medium  pb-3 pt-10 ${styles.header}`}>
+    <h2 className={`text text_type_digits-default ${styles.order_number}`}>
+      #{orderInfo.number}
+    </h2>
+    <h3
+      className={`text text_type_main-medium pb-3 pt-10 ${styles.header}`}
+      style={{ paddingTop: 'calc(var(--offset-base-size) * 3)' }}
+    >
       {orderInfo.name}
     </h3>
     <OrderStatus status={orderInfo.status} />
