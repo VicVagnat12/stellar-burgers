@@ -29,10 +29,10 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await registerUserApi(newUserData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.message || 'Ошибка при регистрации пользователя'
-      );
+    } catch (error) {
+      const errorMessage =
+        (error as Error).message || 'Ошибка при регистрации пользователя';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -43,8 +43,9 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await loginUserApi(loginUserData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка при login user');
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'Ошибка при login user';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -55,8 +56,9 @@ export const logoutUser = createAsyncThunk(
     try {
       const response = await logoutApi();
       return response;
-    } catch (error: any) {
-      return rejectWithValue(error.message || 'Ошибка при logout user');
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'Ошибка при logout user';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -67,10 +69,10 @@ export const updateUserData = createAsyncThunk(
     try {
       const response = await updateUserApi(updatedUserData);
       return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.message || 'Ошибка при обновлении данных пользователя'
-      );
+    } catch (error) {
+      const errorMessage =
+        (error as Error).message || 'Ошибка при обновлении данных пользователя';
+      return rejectWithValue(errorMessage);
     }
   }
 );
