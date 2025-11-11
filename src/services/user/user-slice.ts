@@ -9,14 +9,14 @@ import {
 } from './actions';
 import { setCookie } from '../../utils/cookie';
 
-type TUserState = {
+export type TUserState = {
   user: TUser | null;
   authInitialized: boolean;
   isLoading: boolean;
   error: string | null;
 };
 
-const initialState: TUserState = {
+export const initialState: TUserState = {
   user: null,
   authInitialized: false,
   isLoading: false,

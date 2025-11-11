@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "accessToken": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YzgyOTNjNjczMDg2MDAxYmE4ODVmNiIsImlhdCI6MTc2MjcwMTQwMSwiZXhwIjoxNzYyNzAyNjAxfQ.Uk1OsyNLMzibsAesDKb1uMOGho5OLGBUpi3rAx470Dk",
+  "refreshToken": "c995612240aa9b5c817d2453c1fd21e00209634e3cf2464621f5df8c08a3acb65ac9d76f391c17d0",
+  "user": {
+    "email": "vicvagnat12@yandex.ru",
+    "name": "Виктория"
+  }
+}

@@ -12,7 +12,7 @@ import {
   TNewOrderResponse
 } from '../../utils/burger-api';
 
-type TOrderDetailsState = {
+export type TOrderDetailsState = {
   userOrders: TOrder[] | null;
   orderByNumber: TOrder | null;
   newOrder: {
