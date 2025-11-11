@@ -3,7 +3,7 @@ describe('burger constructor tests', () => {
     cy.intercept('GET', '**/api/ingredients', {
       fixture: 'ingredients.json'
     }).as('getItems');
-    cy.visit('http://localhost:4000');
+    cy.visit('/');
     cy.wait('@getItems');
 
     cy.get('li:first[data-cy="ingredient-bun"]').as('firstItem');
@@ -54,7 +54,7 @@ describe('burger constructor tests', () => {
         JSON.stringify('test-refreshToken')
       );
       cy.setCookie('accessToken', 'test-accessToken');
-      cy.visit('http://localhost:4000');
+      cy.visit('/');
       cy.wait('@getItems');
     });
 
@@ -63,11 +63,11 @@ describe('burger constructor tests', () => {
       cy.get('[data-cy="ingredient-main"]').first().find('button').click();
       cy.get('[data-cy="ingredient-sauce"]').first().find('button').click();
       cy.get('[data-cy="order-submit"]').click();
-      cy.get('[data-cy="modal"').should('exist');
+      cy.get('[data-cy="modal"]').should('exist');
       cy.get('[data-cy="new-order-number"]').should('have.text', '88780');
       cy.get('[data-cy="modal-close"]').click();
-      cy.get('[data-cy="no-bun-text"').should('exist');
-      cy.get('[data-cy="no-main-text"').should('exist');
+      cy.get('[data-cy="no-bun-text"]').should('exist');
+      cy.get('[data-cy="no-main-text"]').should('exist');
     });
   });
 
